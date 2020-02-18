@@ -13,7 +13,7 @@ public class StarWars extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("StarWarsLogo.jpg");
+		img = new Texture("StarWars.jpg");
 	}
 
 	@Override
