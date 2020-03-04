@@ -34,6 +34,8 @@ public class BaseScreen implements Screen, InputProcessor {
         worldToGl = new Matrix4();
         screenToWorld = new Matrix3();
         Gdx.input.setInputProcessor(this);
+        Gdx.graphics.setWindowedMode(500,550);
+        Gdx.graphics.setResizable(false);
     }
 
     @Override
