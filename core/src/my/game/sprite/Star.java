@@ -2,7 +2,6 @@ package my.game.sprite;
 
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-
 import my.game.base.Sprite;
 import my.game.math.Rect;
 import my.game.math.Rnd;
