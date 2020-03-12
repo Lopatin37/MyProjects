@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-
 import my.game.base.BaseScreen;
 import my.game.math.Rect;
 import my.game.sprite.Background;
@@ -23,6 +22,8 @@ public class MenuScreen extends BaseScreen {
     private static final int STAR_COUNT = 256;
     private ButtonExit buttonExit;
     private ButtonPlay buttonPlay;
+
+
 
     public MenuScreen(Game game){
         this.game = game;

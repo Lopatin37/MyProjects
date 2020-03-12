@@ -2,8 +2,6 @@ package my.game.sprite;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
 import my.game.base.ScaledButton;
 import my.game.math.Rect;
 import my.game.screen.GameScreen;

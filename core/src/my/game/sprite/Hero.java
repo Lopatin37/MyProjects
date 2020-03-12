@@ -1,24 +1,46 @@
 package my.game.sprite;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-
 import my.game.base.Sprite;
 import my.game.math.Rect;
+import my.game.pool.BulletPool;
 
 public class Hero extends Sprite {
     private static final float SHIP_HEIGHT = 0.17f;
-    private Vector2 velocity;
+    private Vector2 v0;
+    private Vector2 v;
     private Rect worldBounds;
-    private Vector2 buf;
+    private boolean pressedLeft;
+    private boolean pressedRight;
+    private Vector2 touch;
+    private boolean toRight;
+    private boolean toLeft;
 
-    public Hero(TextureAtlas atlas) {
-        super(atlas.findRegion("main_ship"));
-        velocity = new Vector2();
-        buf = new Vector2();
+    private BulletPool bulletPool;
+    private TextureRegion bulletRegion;
+    private final Vector2 bulletV;
+    private final Vector2 bulletPos;
+
+    private float interval;
+    private float timer;
+
+    public Hero(TextureAtlas atlas, BulletPool bulletPool) {
+        super(atlas.findRegion("main_ship"), 1, 2, 2);
+        v0 = new Vector2(0.005f,0f);
+        v =  new Vector2();
+        interval = 0.2f;
+        pressedLeft = false;
+        pressedRight = false;
+        this.bulletPool = bulletPool;
+        this.bulletRegion = atlas.findRegion("bulletMainShip");
+        this.bulletV = new Vector2(0, 0.5f);
+        this.bulletPos = new Vector2();
+        this.touch = new Vector2();
+
     }
 
     @Override
@@ -40,44 +62,118 @@ public class Hero extends Sprite {
         this.worldBounds = worldBounds;
     }
 
-
-
     @Override
     public void update(float delta) {
-        if(buf.cpy().sub(pos).len() > velocity.len())  pos.add(velocity);
+        pos.add(v);
+        if(getLeft() <= worldBounds.getLeft()) stop();
+        if(getRight() >= worldBounds.getRight()) stop();
+        if(toRight && pos.x >= touch.x) stop();
+        if(toLeft && pos.x <=touch.x) stop();
+        timer += delta;
+        if(timer >= interval){
+            shoot();
+            timer = 0f;
+        }
     }
 
     @Override
     public void touchDown(Vector2 touch, int pointer, int button) {
-        if(touch.x < worldBounds.getLeft() + getHalfWidth()) touch.x = worldBounds.getLeft() + getHalfWidth();
-        if(touch.x > worldBounds.getRight() - getHalfWidth()) touch.x = worldBounds.getRight() - getHalfWidth();
-        if(touch.y < worldBounds.getBottom() + getHalfHeight()) touch.y = worldBounds.getBottom() + getHalfHeight();
-        if(touch.y > worldBounds.getTop() - getHalfHeight()) touch.y = worldBounds.getTop() - getHalfHeight();
-        buf.set(touch.cpy());
-        velocity.set(touch.cpy().sub(pos));
-        velocity.nor();
-        velocity.scl(0.01f);
+        if(touch.x < pos.x){
+            toLeft = true;
+            toRight = false;
+           moveLeft();
+        }else{
+            toLeft = false;
+            toRight = true;
+           moveRight();
+        }
+        this.touch.set(touch.x,pos.y);
+    }
+
+    @Override
+    public void touchUp(Vector2 touch, int pointer, int button) {
+        stop();
+        toLeft = false;
+        toRight = false;
+    }
+
+    @Override
+    public void touchDragged(Vector2 touch, int pointer) {
+        if(touch.x < pos.x){
+            stop();
+            moveLeft();
+            toLeft = true;
+            toRight = false;
+        }
+        if(touch.x > pos.x){
+            stop();
+            moveRight();
+            toLeft = false;
+            toRight = true;
+        }
+        this.touch.set(touch.x,pos.y);
+        this.touch.set(touch.x,pos.y);
     }
 
     public void keyDown(int keyCode){
+        toRight = false;
+        toLeft = false;
         switch (keyCode){
-            case 19: velocity.set(0f,1f);
-                buf.set(pos.x,pos.y + getHalfHeight());
+            case Input.Keys.A:
+            case Input.Keys.LEFT:
+                pressedLeft = true;
+                moveLeft();
                 break;
-            case 20: velocity.set(0f,-1f);
-            buf.set(pos.x,pos.y - getHalfHeight());
-                break;
-            case 21: velocity.set(-1f,0f);
-            buf.set(pos.x - getHalfWidth(),pos.y);
-                break;
-            case 22: velocity.set(1f,0f);
-            buf.set(pos.x + getHalfWidth(),pos.y);
+            case Input.Keys.D:
+            case Input.Keys.RIGHT:
+                pressedRight = true;
+                moveRight();
                 break;
         }
-        if(buf.x < worldBounds.getLeft() + getHalfWidth()) buf.x = worldBounds.getLeft() + getHalfWidth();
-        if(buf.x > worldBounds.getRight() - getHalfWidth()) buf.x = worldBounds.getRight() - getHalfWidth();
-        if(buf.y < worldBounds.getBottom() + getHalfHeight()) buf.y = worldBounds.getBottom() + getHalfHeight();
-        if(buf.y > worldBounds.getTop() - getHalfHeight()) buf.y = worldBounds.getTop() - getHalfHeight();
-        velocity.scl(0.01f);
+    }
+
+    public void keyUp(int keyCode){
+        switch (keyCode){
+            case Input.Keys.A:
+            case Input.Keys.LEFT:
+                pressedLeft = false;
+                if(pressedRight){
+                    moveRight();
+                }else{
+                    stop();
+                }
+                break;
+            case Input.Keys.D:
+            case Input.Keys.RIGHT:
+                pressedRight = false;
+                if(pressedLeft){
+                    moveLeft();
+                }else{
+                    stop();
+                }
+                break;
+        }
+    }
+
+    private void moveLeft(){
+        if(!(getLeft() <= worldBounds.getLeft())) {
+            v.set(v0).rotate(180);
+        }
+    }
+    private void moveRight(){
+        if(!(getRight() >= worldBounds.getRight())) {
+            v.set(v0);
+        }
+    }
+    private void stop(){
+        v.setZero();
+        toLeft= false;
+        toRight = false;
+    }
+
+    private void shoot() {
+        Bullet bullet = bulletPool.obtain();
+        bulletPos.set(pos.x, getTop());
+        bullet.set(this, bulletRegion, bulletPos, bulletV, 0.01f, worldBounds, 1);
     }
 }
