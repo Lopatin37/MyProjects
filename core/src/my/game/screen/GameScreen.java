@@ -1,6 +1,8 @@
 package my.game.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -9,7 +11,9 @@ import my.game.base.BaseScreen;
 import my.game.math.Rect;
 import my.game.pool.BulletPool;
 import my.game.pool.EnemyPool;
+import my.game.pool.ExplosionPool;
 import my.game.sprite.Background;
+import my.game.sprite.Bullet;
 import my.game.sprite.Enemy;
 import my.game.sprite.Hero;
 import my.game.sprite.Star;
@@ -25,6 +29,10 @@ public class GameScreen extends BaseScreen {
     private BulletPool bulletPool;
     private EnemyPool enemyPool;
     private Enemy enemy;
+    private Music music;
+    private Sound explosionSound;
+
+    private ExplosionPool explosionPool;
 
     @Override
     public void show() {
@@ -38,9 +46,15 @@ public class GameScreen extends BaseScreen {
             stars[i] = new Star(menuAtlas);
         }
         bulletPool = new BulletPool();
-        enemyPool = new EnemyPool(mainAtlas);
+        explosionSound = Gdx.audio.newSound(Gdx.files.internal("sounds/explosion.wav"));
+        explosionPool = new ExplosionPool(mainAtlas, explosionSound);
+        enemyPool = new EnemyPool(mainAtlas, bulletPool, explosionPool);
         hero = new Hero(mainAtlas,bulletPool);
         enemy = new Enemy(mainAtlas, enemyPool);
+        music = Gdx.audio.newMusic(Gdx.files.internal("sounds/music.mp3"));
+        music.setLooping(true);
+        music.play();
+
     }
 
     @Override
@@ -62,12 +76,26 @@ public class GameScreen extends BaseScreen {
     }
 
     @Override
+    public void pause() {
+        music.pause();
+    }
+
+    @Override
+    public void resume() {
+        music.play();
+    }
+
+    @Override
     public void dispose() {
         bg.dispose();
         mainAtlas.dispose();
         menuAtlas.dispose();
         bulletPool.dispose();
         enemyPool.dispose();
+        music.dispose();
+        hero.dispose();
+        explosionPool.dispose();
+        explosionSound.dispose();
         super.dispose();
     }
 
@@ -108,12 +136,14 @@ public class GameScreen extends BaseScreen {
         hero.update(delta);
         enemy.update(delta);
         bulletPool.updateActiveSprites(delta);
-        enemyPool.updateActiveSprites(hero);
+        enemyPool.updateActiveSprites(hero,delta);
+        explosionPool.updateActiveSprites(delta);
     }
 
     private void freeAllDestroyed() {
         bulletPool.freeAllDestroyedActiveObjects();
         enemyPool.freeAllDestroyedActiveObjects();
+        explosionPool.freeAllDestroyedActiveObjects();
     }
 
     private void draw(){
@@ -127,6 +157,7 @@ public class GameScreen extends BaseScreen {
         }
         bulletPool.drawActiveSprites(batch);
         enemyPool.drawActiveSprites(batch);
+        explosionPool.drawActiveSprites(batch);
         batch.end();
     }
 

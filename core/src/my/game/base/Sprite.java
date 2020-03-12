@@ -60,7 +60,9 @@ public abstract class Sprite extends Rect {
 
     public void update(float delta) {};
 
-    public void update(Hero hero) {};
+    public void update(Hero hero, float delta) {};
+
+    public void dispose(){}
 
     public float getAngle() {
         return angle;

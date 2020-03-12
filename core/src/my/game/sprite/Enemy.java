@@ -3,6 +3,7 @@ package my.game.sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import my.game.base.Sprite;
 import my.game.math.Rect;
+import my.game.pool.BulletPool;
 import my.game.pool.EnemyPool;
 
 public class Enemy extends Sprite {
@@ -11,6 +12,7 @@ public class Enemy extends Sprite {
     private Rect worldBounds;
     private float interval = 2f;
     private float timer;
+
 
 
     public Enemy(TextureAtlas atlas, EnemyPool enemyPool){

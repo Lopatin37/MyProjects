@@ -1,6 +1,8 @@
 package my.game.sprite;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -19,6 +21,7 @@ public class Hero extends Sprite {
     private Vector2 touch;
     private boolean toRight;
     private boolean toLeft;
+    private Sound soundShoot;
 
     private BulletPool bulletPool;
     private TextureRegion bulletRegion;
@@ -40,7 +43,7 @@ public class Hero extends Sprite {
         this.bulletV = new Vector2(0, 0.5f);
         this.bulletPos = new Vector2();
         this.touch = new Vector2();
-
+        soundShoot = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
     }
 
     @Override
@@ -74,6 +77,10 @@ public class Hero extends Sprite {
             shoot();
             timer = 0f;
         }
+    }
+
+    public void dispose(){
+        soundShoot.dispose();
     }
 
     @Override
@@ -172,6 +179,7 @@ public class Hero extends Sprite {
     }
 
     private void shoot() {
+        soundShoot.play(1f);
         Bullet bullet = bulletPool.obtain();
         bulletPos.set(pos.x, getTop());
         bullet.set(this, bulletRegion, bulletPos, bulletV, 0.01f, worldBounds, 1);
