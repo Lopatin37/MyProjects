@@ -47,6 +47,11 @@ public class Bullet extends Sprite {
         return damage;
     }
 
+    @Override
+    public void destroy() {
+        destroyed = true;
+    }
+
     public Sprite getOwner() {
         return owner;
     }

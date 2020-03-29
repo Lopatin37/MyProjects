@@ -3,7 +3,6 @@ package my.game.sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import my.game.base.Sprite;
 import my.game.math.Rect;
-import my.game.pool.BulletPool;
 import my.game.pool.EnemyPool;
 
 public class Enemy extends Sprite {
