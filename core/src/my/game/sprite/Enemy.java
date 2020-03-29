@@ -13,6 +13,7 @@ public class Enemy extends Sprite {
     private float timer;
 
 
+
     public Enemy(TextureAtlas atlas, EnemyPool enemyPool){
         this.atlas = atlas;
         this.enemyPool = enemyPool;

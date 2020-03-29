@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.ArrayList;
 import java.util.List;
 
+import my.game.math.Rnd;
 import my.game.sprite.Hero;
 
 public abstract class SpritesPool<T extends Sprite> {
@@ -17,10 +18,12 @@ public abstract class SpritesPool<T extends Sprite> {
 
     public T obtain() {
         T object;
+        System.out.println("21");
         if (freeObjects.isEmpty()) {
             object = newObject();
         } else {
-            object = freeObjects.remove(freeObjects.size() - 1);
+            int i = (int)Rnd.nextFloat(0, freeObjects.size());
+            object = freeObjects.remove(i);
         }
         activeObjects.add(object);
         System.out.println(getClass().getName() + " active/free: " + activeObjects.size() + "/" + freeObjects.size());
@@ -35,10 +38,10 @@ public abstract class SpritesPool<T extends Sprite> {
         }
     }
 
-    public void updateActiveSprites(Hero hero) {
+    public void updateActiveSprites(Hero hero, float delta) {
         for (Sprite sprite : activeObjects) {
             if (!sprite.isDestroyed()) {
-                sprite.update(hero);
+                sprite.update(hero,delta);
             }
         }
     }
@@ -65,6 +68,9 @@ public abstract class SpritesPool<T extends Sprite> {
     public void dispose() {
         activeObjects.clear();
         freeObjects.clear();
+        for(Sprite sprite : activeObjects){
+            sprite.dispose();
+        }
     }
 
     public List<T> getActiveObjects() {
